@@ -1,0 +1,30 @@
+[
+    {
+        "id":1,
+        "nome":"Mario",
+        "cognome":"Rossi",
+        "username":"mario.rossi",
+        "password":"abc"
+    },
+    {
+        "id":2,
+        "nome":"Gianni",
+        "cognome":"Verdi",
+        "username":"gianni.verdi",
+        "password":"123"
+    },
+    {
+        "id":3,
+        "nome":"Laura",
+        "cognome":"Bianchi",
+        "username":"laura.bianchi",
+        "password":"def"
+    },
+    {
+        "id":4,
+        "nome":"Sara",
+        "cognome":"Gialli",
+        "username":"sara.gialli",
+        "password":"456"
+    }
+]
