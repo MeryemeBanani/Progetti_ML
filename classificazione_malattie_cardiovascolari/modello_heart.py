@@ -2,6 +2,9 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score
 
 from machine_learning.analisi.modello_base import ModelloBase
 
@@ -33,6 +36,47 @@ class ModelloHeart(ModelloBase):
 
         # Unione dei due dataframe
         df_sistemato = pd.concat([df_quantitative, df_categoriali], axis=1)
+
+        # Esempio di calcolo di una variabile di rischio su una scala da 0 a 1, sommo i valori relativi dei parametri e normalizzo rispetto al numero di parametri
+        df_sistemato['rischio'] = (
+                (df_sistemato['chol'] / df_sistemato['chol'].max()) +
+                (df_sistemato['trestbps'] / df_sistemato['trestbps'].max()) +
+                (df_sistemato['thalach'] / df_sistemato['thalach'].max()) +
+                (df_sistemato['age'] / df_sistemato['age'].max()) +
+                (df_sistemato['oldpeak'] / df_sistemato['oldpeak'].max())
+        )
+
+
+        df_sistemato['rischio'] = df_sistemato['rischio'] / 5  #normalizzo
+
+        # soglia per classificare i rischi come alto (1) o basso (0) è 0.5
+        soglia_rischio = 0.2
+        df_sistemato['rischio'] = (df_sistemato['rischio'] > soglia_rischio).astype(int)
+
+        # Ora puoi eseguire la regressione logistica
+        x = df_sistemato[["age", "trestbps", "chol", "thalach", "oldpeak", "ca"]]
+        y = df_sistemato['rischio']
+
+
+        model = LogisticRegression()
+
+
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+        # Allena il modello
+        model.fit(x_train, y_train)
+
+        # Previsioni e valutazione
+        y_pred = model.predict(x_test)
+
+        # Misure di performance
+        print(f"Accuratezza: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+        print(classification_report(y_test, y_pred))
+
+        # Area sotto la curva ROC
+        y_prob = model.predict_proba(x_test)[:, 1]
+        print(f"AUC: {roc_auc_score(y_test, y_prob):.2f}")
+
         return df_sistemato
 
     def riduzione_dataframe(self):
@@ -64,6 +108,4 @@ modello.analisi_valori_univoci(modello.dataframe, ["age", "trestbps", "chol", "t
 modello.analisi_indici_statistici(modello.dataframe)
 modello.individuazione_outliers(modello.dataframe, ["sex", "cp", "fbs", "restecg", "exang", "slope", "thal"])
 
-print("dataframe sistemato:")
-modello.grafico_dispersione_pca()
-print(modello.dataframe_sistemato.head())
+
