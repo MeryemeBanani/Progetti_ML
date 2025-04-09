@@ -53,29 +53,7 @@ class ModelloHeart(ModelloBase):
         soglia_rischio = 0.2
         df_sistemato['rischio'] = (df_sistemato['rischio'] > soglia_rischio).astype(int)
 
-        # Ora puoi eseguire la regressione logistica
-        x = df_sistemato[["age", "trestbps", "chol", "thalach", "oldpeak", "ca"]]
-        y = df_sistemato['rischio']
 
-
-        model = LogisticRegression()
-
-
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
-
-        # Allena il modello
-        model.fit(x_train, y_train)
-
-        # Previsioni e valutazione
-        y_pred = model.predict(x_test)
-
-        # Misure di performance
-        print(f"Accuratezza: {accuracy_score(y_test, y_pred) * 100:.2f}%")
-        print(classification_report(y_test, y_pred))
-
-        # Area sotto la curva ROC
-        y_prob = model.predict_proba(x_test)[:, 1]
-        print(f"AUC: {roc_auc_score(y_test, y_prob):.2f}")
 
         return df_sistemato
 
@@ -101,11 +79,36 @@ class ModelloHeart(ModelloBase):
         plt.grid(True)
         plt.show()
 
+    def regressioneLineare(self):
+        # modello predittivo basato sulla regressione
+
+        x = self.dataframe_sistemato[["age", "trestbps", "chol", "thalach", "oldpeak", "ca"]]
+        y = self.dataframe_sistemato['rischio']
+
+        model = LogisticRegression()
+
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
+
+        # Allena il modello
+        model.fit(x_train, y_train)
+
+        # Previsioni e valutazione
+        y_pred = model.predict(x_test)
+
+        # Misure di performance
+        print(f"Accuratezza: {accuracy_score(y_test, y_pred) * 100:.2f}%")
+        print(classification_report(y_test, y_pred))
+
+        # Area sotto la curva ROC
+        y_prob = model.predict_proba(x_test)[:, 1]
+        print(f"AUC: {roc_auc_score(y_test, y_prob):.2f}")
+
 # Utilizzo modello
 modello = ModelloHeart("../dataset/data_07.csv")
 modello.analisi_generali(modello.dataframe_ridotto)
 modello.analisi_valori_univoci(modello.dataframe, ["age", "trestbps", "chol", "thalach", "oldpeak"])
 modello.analisi_indici_statistici(modello.dataframe)
 modello.individuazione_outliers(modello.dataframe, ["sex", "cp", "fbs", "restecg", "exang", "slope", "thal"])
+modello.regressioneLineare()
 
 
